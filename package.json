@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node game.js",
+    "choose": "node choose.js",
     "test": "mocha"
   },
   "repository": "git+https://github.com/BurlingtonCodeAcademy/guess-the-number.git",
