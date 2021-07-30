@@ -1,5 +1,5 @@
 // file to test
-// const guess = require("../guess");
+const { init, play, mid } = require("../guess");
 
 // testing libraries
 const assert = require("assert");
@@ -16,6 +16,15 @@ describe("number guessing game", () => {
   });
   afterEach(() => {
     sinon.restore();
+  });
+
+  it("Can find an integer mid point", () => {
+    assert.strictEqual(mid(0, 4), 2);
+    assert.strictEqual(mid(0, 2), 1);
+    assert.strictEqual(mid(0, 3), 1);
+    assert.strictEqual(mid(1, 4), 2);
+    assert.strictEqual(mid(4, 7), 5);
+    assert.strictEqual(mid(4, 6), 5);
   });
 
   it.skip("Welcomes user and explains the game", async (done) => {
