@@ -1,8 +1,14 @@
 const ask = require("./ask");
 const _ = require("underscore");
 
-const mid = (top, bottom) => Math.floor((top + bottom) / 2);
+// create randomly alternating middle to
+// handle the upper & lower bound edges cases
+const alternatingMidpoint = (top, bottom) =>
+  Math.random() > 0.5
+    ? Math.ceil((top + bottom) / 2)
+    : Math.floor((top + bottom) / 2);
 
+// keep game interesting with different frustrations
 const exclamation = () =>
   _.sample([
     "Shucks!",
@@ -12,6 +18,17 @@ const exclamation = () =>
     "Holy Potatoes!",
   ]);
 
+/**
+ * Name: play
+ * ==========
+ * This function is the recursive main game loop.
+ * Uses the params to narrow onto the secret number.
+ *
+ * @param {Number} ceiling - upper bound
+ * @param {Number} floor - lower bound
+ * @param {Number} attempt - next try
+ * @param {Number} count - tracks number of tries
+ */
 const play = async (ceiling, floor, attempt, count) => {
   let response;
 
@@ -49,8 +66,8 @@ const play = async (ceiling, floor, attempt, count) => {
       // if we were low, then our attempt becomes our ceiling
       else [ceiling, floor] = [attempt, floor];
 
-      // our next attempt is integer midpoint of the new floor & ceiling
-      attempt = mid(ceiling, floor);
+      // our next attempt is an alternating midpoint of the new floor & ceiling
+      attempt = alternatingMidpoint(ceiling, floor);
     } else {
       // user entered neither H nor L -- clarify input options :-)
       console.log("Please use H or L. Let's try again.");
@@ -59,14 +76,6 @@ const play = async (ceiling, floor, attempt, count) => {
     // user entered neither Y nor N -- clarify input options :-)
     console.log("Please use either Y or N. Here we go again.");
   }
-
-  // debugging line: here's our next attempt
-  // console.log(
-  //   `Now trying top: ${ceiling}, bottom: ${floor}, guess: ${mid(
-  //     ceiling,
-  //     floor
-  //   )}`
-  // );
 
   // try again with new bounderies and our next guess
   play(ceiling, floor, attempt, count + 1);
@@ -152,4 +161,4 @@ const init = async () => {
 // setup & kick off the game
 // init();
 
-module.exports = { init, play, mid };
+module.exports = { init, play, alternatingMidpoint };

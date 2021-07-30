@@ -1,5 +1,5 @@
 // file to test
-const { init, play, mid } = require("../guess");
+const { alternatingMidpoint } = require("../guess");
 
 // testing libraries
 const assert = require("assert");
@@ -12,22 +12,34 @@ const resetModules = () => delete require.cache[require.resolve("./guess")];
 
 describe("number guessing game", () => {
   beforeEach(() => {
-    resetModules();
+    // resetModules();
   });
   afterEach(() => {
-    sinon.restore();
+    // sinon.restore();
   });
 
   // kill process after this suite
   after(() => process.exit(0));
 
-  it("Can find an integer mid point", () => {
-    assert.strictEqual(mid(0, 4), 2);
-    assert.strictEqual(mid(0, 2), 1);
-    assert.strictEqual(mid(0, 3), 1);
-    assert.strictEqual(mid(1, 4), 2);
-    assert.strictEqual(mid(4, 7), 5);
-    assert.strictEqual(mid(4, 6), 5);
+  it("Can find an integer simple mid point", () => {
+    assert.strictEqual(alternatingMidpoint(0, 4), 2, "2 is mid (0,4)");
+    assert.strictEqual(alternatingMidpoint(0, 2), 1, "1 is mid (0,2)");
+    assert.strictEqual(alternatingMidpoint(4, 6), 5, "5 is mid (4,5)");
+  });
+
+  it("Can find an integer 'alternating' mid point", () => {
+    expect(alternatingMidpoint(0, 3), "alternate b/t 1 and 2").to.be.within(
+      1,
+      2
+    );
+    expect(alternatingMidpoint(1, 4), "alternate b/t 2 and 3").to.be.within(
+      2,
+      3
+    );
+    expect(alternatingMidpoint(4, 7), "alternate b/t 5 and 6").to.be.within(
+      5,
+      6
+    );
   });
 
   it.skip("Welcomes user and explains the game", async (done) => {
