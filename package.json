@@ -4,7 +4,7 @@
   "description": "Before starting to code this project, please find a partner and play this game together verbally for a few rounds.",
   "main": "index.js",
   "scripts": {
-    "start": "node game.js",
+    "start": "node guess.js",
     "test": "mocha"
   },
   "repository": "git+https://github.com/BurlingtonCodeAcademy/guess-the-number.git",
