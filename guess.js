@@ -72,6 +72,15 @@ const play = async (ceiling, floor, attempt, count) => {
   play(ceiling, floor, attempt, count + 1);
 };
 
+/**
+ * Name: allowUserToSetBounds
+ * ==========================
+ * Guides users through setting the
+ * ceiling and floor of the guessing game.
+ * Returns an array with both.
+ *
+ * @returns [ceiling, floor]
+ */
 const allowUserToSetBounds = async () => {
   let ceiling = 100;
   let floor = 0;
@@ -100,7 +109,12 @@ const allowUserToSetBounds = async () => {
       ceiling = Number(await ask("Ceiling (#) >_"));
       floor = Number(await ask("Floor (#) >_"));
 
-      if (Number.isInteger(ceiling) && Number.isInteger(floor)) {
+      // sanitatize inputs -- make sure they're numbers & ceiling > floor
+      if (
+        Number.isInteger(ceiling) &&
+        Number.isInteger(floor) &&
+        ceiling > floor
+      ) {
         console.log("Excellent. Moving on.");
       } else {
         console.log("I see we're being naughty. Let's stick with 0 and 100.");
