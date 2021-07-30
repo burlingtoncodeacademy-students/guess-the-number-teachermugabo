@@ -18,6 +18,9 @@ describe("number guessing game", () => {
     sinon.restore();
   });
 
+  // kill process after this suite
+  after(() => process.exit(0));
+
   it("Can find an integer mid point", () => {
     assert.strictEqual(mid(0, 4), 2);
     assert.strictEqual(mid(0, 2), 1);
