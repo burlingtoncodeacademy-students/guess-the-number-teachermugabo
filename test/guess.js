@@ -10,7 +10,7 @@ require("chai").should();
 
 const resetModules = () => delete require.cache[require.resolve("./guess")];
 
-describe("number guessing game", () => {
+describe("Computer guessing number", () => {
   beforeEach(() => {
     // resetModules();
   });
