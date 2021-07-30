@@ -72,6 +72,50 @@ const play = async (ceiling, floor, attempt, count) => {
   play(ceiling, floor, attempt, count + 1);
 };
 
+const allowUserToSetBounds = async () => {
+  let ceiling = 100;
+  let floor = 0;
+
+  console.log(); // insert new line for layout
+  let answer = (
+    await ask(
+      "Btw, do you Wanna set your own lower & upper bound?" +
+        " 0 & 100 are just the defaults. (Y/N) >_"
+    )
+  )
+    .trim()
+    .toUpperCase();
+
+  // look until we get a valid response
+  while (answer != "Y" && answer != "N") {
+    console.log("Please use Y or N. Let's try again.");
+    answer = (await ask("Wanna make things interesting with new bounds? (Y/N)"))
+      .trim()
+      .toUpperCase();
+  }
+
+  // if yes, then collect bounds and update the ceiling & floor variables
+  if (answer === "Y") {
+    try {
+      ceiling = Number(await ask("Ceiling (#) >_"));
+      floor = Number(await ask("Floor (#) >_"));
+
+      if (Number.isInteger(ceiling) && Number.isInteger(floor)) {
+        console.log("Excellent. Moving on.");
+      } else {
+        console.log("I see we're being naughty. Let's stick with 0 and 100.");
+        [ceiling, floor] = [100, 0];
+      }
+    } catch (err) {
+      console.log(err.message);
+      console.log("This is hard. We're gonna stick with the defaults.");
+    }
+  }
+
+  console.log(); // another blank line for layout
+  return [ceiling, floor];
+};
+
 const init = async () => {
   console.log(
     "Let's play a game where you (human) make up a number and I (computer) try to guess it."
@@ -82,11 +126,13 @@ const init = async () => {
       "I will try to guess it. Ready? Press [Enter] to start."
   );
 
-  // make our initial guess
-  let seed = 41; // prime number, right? In any case, our initial guess.
+  let [ceiling, floor] = await allowUserToSetBounds();
+
+  // seed our guess with a random number in range
+  let seed = _.random(floor, ceiling);
 
   // start the game!
-  play(100, 0, seed, 0);
+  play(ceiling, floor, seed, 1);
 };
 
 // setup & kick off the game
