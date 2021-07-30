@@ -150,6 +150,6 @@ const init = async () => {
 };
 
 // setup & kick off the game
-init();
+// init();
 
 module.exports = { init, play, mid };
