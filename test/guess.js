@@ -1,5 +1,5 @@
 // file to test
-const start = require("../guess");
+// const guess = require("../guess");
 
 // testing libraries
 const assert = require("assert");
@@ -18,33 +18,29 @@ describe("number guessing game", () => {
     sinon.restore();
   });
 
-  it.skip("Welcomes user and explains the game", async () => {
+  it.skip("Welcomes user and explains the game", async (done) => {
     let val = ""; // read print out on console - how?
-
     assert.strictEqual(
       val,
       "Please think of a number between 1 and 100 (inclusive)."
     );
+    done();
   });
 
   // * https://glebbahmutov.com/blog/unit-testing-cli-programs/
   // https://stackoverflow.com/questions/65298539/how-to-test-function-that-requires-user-input-in-command-line-using-mocha-chai
   it.skip("Prompt user for guess", async () => {
     // test that user enters a guess -- how?!
-
     // need a stup - use sinon js
-
     const readlineInterfacestub = {
       question: sinon.stub().callsFake((query, callback) => {
         callback(77); // guess number
       }),
       close: sinon.stub(),
     };
-
     sinon.stub(readline, "createInterface").returns(readlineInterfacestub);
-    const actual = await start();
+    const actual = await guess();
     expect(actual).to.be.eql(77);
-
     sinon.assert.calledWithExactly(
       readlineInterfacestub.question,
       "Please think of a number between 1 and 100 (inclusive).",
