@@ -33,7 +33,8 @@ const play = async (ceiling, floor, attempt, count) => {
   if (response === "Y") {
     // celebrate victor and then signed oout!
     console.log("Hip! Hip! Hurray!! Thanks for playing!");
-    console.log(`It only took me ${count} tries to guess it. ¯\_(ツ)_/¯`);
+    // ascii art courset of urban dictionary
+    console.log(`It only took me ${count} tries to guess it. ¯\\_(ツ)_/¯`);
     console.log("bye");
     process.exit(0); // optionally, extend an option to play again.
   } else if (response === "N") {
