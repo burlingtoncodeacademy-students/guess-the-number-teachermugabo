@@ -12,7 +12,7 @@ const exclamation = () =>
     "Holy Potatoes!",
   ]);
 
-const play = async (ceiling, floor, attempt) => {
+const play = async (ceiling, floor, attempt, count) => {
   let response;
 
   // check whether we got it right
@@ -33,6 +33,7 @@ const play = async (ceiling, floor, attempt) => {
   if (response === "Y") {
     // celebrate victor and then signed oout!
     console.log("Hip! Hip! Hurray!! Thanks for playing!");
+    console.log(`It only took me ${count} tries to guess it. ¯\_(ツ)_/¯`);
     console.log("bye");
     process.exit(0); // optionally, extend an option to play again.
   } else if (response === "N") {
@@ -67,7 +68,7 @@ const play = async (ceiling, floor, attempt) => {
   // );
 
   // try again with new bounderies and our next guess
-  play(ceiling, floor, attempt);
+  play(ceiling, floor, attempt, count + 1);
 };
 
 const init = async () => {
@@ -84,7 +85,7 @@ const init = async () => {
   let seed = 41; // prime number, right? In any case, our initial guess.
 
   // start the game!
-  play(100, 0, seed);
+  play(100, 0, seed, 0);
 };
 
 // setup & kick off the game
