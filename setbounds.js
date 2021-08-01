@@ -1,19 +1,14 @@
 const ask = require("./ask");
 
 /**
- * Name: allowUserToSetBounds
- * ==========================
- * Guides users through setting the
- * ceiling and floor of the guessing game.
- * Returns an array with both.
+ * Name: userWantsToSetOwnBounds
+ * =============================
+ * Predicate function that answers the question
+ * posed by the method name with a boolean result.
  *
- * @returns [ceiling, floor]
+ * @returns {Boolean} does user want to set own bounds?
  */
-const allowUserToSetBounds = async () => {
-  let ceiling = 100;
-  let floor = 0;
-
-  console.log(); // insert new line for layout
+const userWantsToSetOwnBounds = async () => {
   let answer = (
     await ask(
       "Btw, do you Wanna set your own lower & upper bound?" +
@@ -23,7 +18,7 @@ const allowUserToSetBounds = async () => {
     .trim()
     .toUpperCase();
 
-  // look until we get a valid response
+  // ask until we get a valid response
   while (answer != "Y" && answer != "N") {
     console.log("Please use Y or N. Let's try again.");
     answer = (await ask("Wanna make things interesting with new bounds? (Y/N)"))
@@ -31,8 +26,29 @@ const allowUserToSetBounds = async () => {
       .toUpperCase();
   }
 
-  // if yes, then collect bounds and update the ceiling & floor variables
-  if (answer === "Y") {
+  return answer === "Y" ? true : false;
+};
+
+/**
+ * Name: allowUserToSetBounds
+ * ==========================
+ * Guides users through setting the
+ * ceiling and floor of the guessing game.
+ * Returns an array with both.
+ *
+ * @returns [ceiling, floor]
+ */
+const allowUserToSetBounds = async () => {
+  // set defaults
+  let ceiling = 100;
+  let floor = 0;
+
+  console.log(); // insert new line for layout
+
+  // SECTION: ASK USE IF THEY WANT TO SET BOUNDS
+  if (await userWantsToSetOwnBounds()) {
+    // SECTION: COLLECT USER'S UPPER & LOWER BOUNDS
+    // if (userWantsToSetOwnBounds) [ceiling, floor] = getUserSetBounds();
     try {
       ceiling = Number(await ask("Ceiling (#) >_"));
       floor = Number(await ask("Floor (#) >_"));
