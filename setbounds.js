@@ -30,6 +30,44 @@ const userWantsToSetOwnBounds = async () => {
 };
 
 /**
+ * Name: getUserSetBounds
+ * ======================
+ * Prompt user for ceiling & floor.
+ * Provide error handling -- if there are
+ * problems, return defaults for values.
+ *
+ * @param {Number} defaultCeiling
+ * @param {Number} defaultFloor
+ * @returns [ceiling, floor]
+ */
+const getUserSetBounds = async (defaultCeiling, defaultFloor) => {
+  // declare variables
+  let ceiling, floor;
+
+  try {
+    ceiling = Number(await ask("Ceiling (#) >_"));
+    floor = Number(await ask("Floor (#) >_"));
+
+    // sanitatize inputs -- make sure they're numbers & ceiling > floor
+    if (
+      Number.isInteger(ceiling) &&
+      Number.isInteger(floor) &&
+      ceiling > floor
+    ) {
+      console.log("Excellent. Moving on.");
+    } else {
+      console.log("I see we're being naughty. Let's stick with 0 and 100.");
+      [ceiling, floor] = [defaultCeiling, defaultFloor];
+    }
+  } catch (err) {
+    console.log(err.message);
+    console.log("This is hard. We're gonna stick with the defaults.");
+  }
+
+  return [ceiling, floor];
+};
+
+/**
  * Name: allowUserToSetBounds
  * ==========================
  * Guides users through setting the
@@ -45,29 +83,11 @@ const allowUserToSetBounds = async () => {
 
   console.log(); // insert new line for layout
 
-  // SECTION: ASK USE IF THEY WANT TO SET BOUNDS
+  // ask user if they want to set bounderies
   if (await userWantsToSetOwnBounds()) {
-    // SECTION: COLLECT USER'S UPPER & LOWER BOUNDS
-    // if (userWantsToSetOwnBounds) [ceiling, floor] = getUserSetBounds();
-    try {
-      ceiling = Number(await ask("Ceiling (#) >_"));
-      floor = Number(await ask("Floor (#) >_"));
-
-      // sanitatize inputs -- make sure they're numbers & ceiling > floor
-      if (
-        Number.isInteger(ceiling) &&
-        Number.isInteger(floor) &&
-        ceiling > floor
-      ) {
-        console.log("Excellent. Moving on.");
-      } else {
-        console.log("I see we're being naughty. Let's stick with 0 and 100.");
-        [ceiling, floor] = [100, 0];
-      }
-    } catch (err) {
-      console.log(err.message);
-      console.log("This is hard. We're gonna stick with the defaults.");
-    }
+    // if they do, collect them - pass in defaults in case there are issues
+    if (userWantsToSetOwnBounds)
+      [ceiling, floor] = await getUserSetBounds(ceiling, floor);
   }
 
   console.log(); // another blank line for layout
