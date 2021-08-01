@@ -4,6 +4,9 @@ const { allowUserToSetBounds } = require("./setbounds");
 
 // create randomly alternating middle to
 // handle the upper & lower bound edges cases
+// TODO revert to simple lowermid point & implement
+// TODO (cont.) logic to ensure the upper ceiling is addressed
+// That will also help us address the "cheating catcher which doesn't work right now"
 const alternatingMidpoint = (top, bottom) =>
   Math.random() > 0.5
     ? Math.ceil((top + bottom) / 2)
@@ -55,30 +58,58 @@ const play = async (ceiling, floor, attempt, count) => {
     console.log(`It only took me ${count} tries to guess it. ¯\\_(ツ)_/¯`);
     console.log("bye");
     process.exit(0); // optionally, extend an option to play again.
-  } else if (response === "N") {
-    // nope - try again. get some clues first
+  }
+  // nope - try again.
+  else if (response === "N") {
+    // cheat detector: if there is only a difference of 1 b/t ceiling and floor - the gig is up!
+    if (ceiling - floor === 1) {
+      console.log(
+        `Your number has to be either ${ceiling} or ${floor}.` // or you are cheating!`
+      );
+      console.log("bye");
+      process.exit(0);
+    }
+
+    //get some clues first
     let direction = (
       await ask(`${exclamation()} (H)igher or (L)ower? >_`)
     ).toUpperCase();
 
-    if (direction === "H" || direction === "L") {
-      if (direction === "H") {
-        // if human's number is higher, our attempt becomes our floor
-        [ceiling, floor] = [ceiling, attempt];
-      } else {
-        // if human's number is lower, then our attempt becomes our ceiling
-        [ceiling, floor] = [attempt, floor];
-      }
+    // based on validation checks, we may choose to not update our attempt
+    let updateAttempt = true;
 
-      // cheat detector
-      if (ceiling === floor) {
-        console.log(`Your number has to be ${attempt} or you are cheating!`);
-        console.log("bye");
-        process.exit(0);
+    if (direction === "H" || direction === "L") {
+      // if human said go higher
+      if (direction === "H") {
+        // make sure they're not saying 'higher' than the ceiling!
+        if (attempt >= ceiling) {
+          console.log(
+            `We've already established your number is lower than ${ceiling}! What games are you playing? Try again...`
+          );
+          updateAttempt = false;
+        }
+        // if human's number is higher, our attempt becomes our floor
+        else {
+          [ceiling, floor] = [ceiling, attempt];
+        }
+      }
+      // if human said go lower!
+      else {
+        // make sure the human's not telling us to go lower than the bound!
+        if (attempt <= floor) {
+          console.log(
+            `We've already established that your number is higher than ${floor}. Have you had your coffee?`
+          );
+          updateAttempt = false;
+        }
+        // if human's number is lower, then our attempt becomes our ceiling
+        else {
+          [ceiling, floor] = [attempt, floor];
+        }
       }
 
       // our next attempt is an alternating midpoint of the new floor & ceiling
-      attempt = alternatingMidpoint(ceiling, floor);
+      if (updateAttempt) attempt = alternatingMidpoint(ceiling, floor);
     } else {
       // user entered neither H nor L -- clarify input options :-)
       console.log("Please use H or L. Let's try again.");
