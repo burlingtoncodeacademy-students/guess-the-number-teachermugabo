@@ -1,5 +1,5 @@
 // file to test
-const { alternatingMidpoint } = require("../guess");
+const { alternatingMidpoint } = require("../index");
 
 // testing libraries
 const assert = require("assert");
