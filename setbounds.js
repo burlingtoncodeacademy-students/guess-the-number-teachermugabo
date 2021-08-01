@@ -30,6 +30,27 @@ const userWantsToSetOwnBounds = async () => {
 };
 
 /**
+ * Name: isValidUpperLowerBounds
+ * =============================
+ * Checks to make sure user entered integers for the bounds
+ * and that the upper > lower bound.
+ *
+ * @param {Number} ceiling
+ * @param {Number} floor
+ * @returns {Boolean} predicate evaluation
+ */
+const isValidUpperLowerBounds = (upper, lower) => {
+  // first, type cast them to strings
+  let ceiling = Number(upper),
+    floor = Number(lower);
+
+  // then return the check - are they integers and is ceiling > floor
+  return (
+    Number.isInteger(ceiling) && Number.isInteger(floor) && ceiling > floor
+  );
+};
+
+/**
  * Name: getUserSetBounds
  * ======================
  * Prompt user for ceiling & floor.
@@ -49,12 +70,8 @@ const getUserSetBounds = async (defaultCeiling, defaultFloor) => {
     floor = Number(await ask("Floor (#) >_"));
 
     // sanitatize inputs -- make sure they're numbers & ceiling > floor
-    if (
-      Number.isInteger(ceiling) &&
-      Number.isInteger(floor) &&
-      ceiling > floor
-    ) {
-      console.log("Excellent. Moving on.");
+    if (isValidUpperLowerBounds(ceiling, floor)) {
+      console.log("Excellent. Let's get it.");
     } else {
       console.log("I see we're being naughty. Let's stick with 0 and 100.");
       [ceiling, floor] = [defaultCeiling, defaultFloor];
@@ -94,4 +111,4 @@ const allowUserToSetBounds = async () => {
   return [ceiling, floor];
 };
 
-module.exports = { allowUserToSetBounds };
+module.exports = { allowUserToSetBounds, isValidUpperLowerBounds };
