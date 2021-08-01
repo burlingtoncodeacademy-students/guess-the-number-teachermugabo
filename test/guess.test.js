@@ -18,9 +18,6 @@ describe("Computer guessing number", () => {
     // sinon.restore();
   });
 
-  // kill process after this suite
-  after(() => process.exit(0));
-
   it("Can find an integer simple mid point", () => {
     assert.strictEqual(alternatingMidpoint(0, 4), 2, "2 is mid (0,4)");
     assert.strictEqual(alternatingMidpoint(0, 2), 1, "1 is mid (0,2)");
