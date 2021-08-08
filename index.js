@@ -12,15 +12,44 @@ const alternatingMidpoint = (top, bottom) =>
     ? Math.ceil((top + bottom) / 2)
     : Math.floor((top + bottom) / 2);
 
+// global state to track whether
+// upper limit is checked.
+let checkedUpperBound = false;
+
+const lowerMidpoint = (ceiling, floor) => {
+  console.log(`ceiling=${ceiling} and floor=${floor}`);
+  // if we're down to the wire, and haven't checked up limit, do so.
+  if (ceiling - floor <= 1 && checkedUpperBound === false) {
+    checkedUpperBound = true;
+    return ceiling;
+  }
+  // else, keep returning lower mid point
+  return Math.floor((ceiling + floor) / 2);
+};
+
 // keep game interesting with different frustrations
 const exclamation = () =>
   _.sample([
     "Shucks!",
     "Damn!",
     "This is not as easy as it looks!",
-    "Seriously considering giving up...uno mas!",
     "Holy Potatoes!",
   ]);
+
+/**
+ * name: endGame
+ * =============
+ * Helper method to end the game.
+ * @param {String} msg
+ */
+const endGame = (msg, count) => {
+  console.log(msg);
+  console.log();
+
+  console.log(`It only took me ${count} tries to guess it. ¯\\_(ツ)_/¯`);
+  console.log("bye");
+  process.exit(0);
+};
 
 /**
  * Name: play
@@ -36,7 +65,12 @@ const exclamation = () =>
 const play = async (ceiling, floor, attempt, count) => {
   let response;
 
-  // check whether we got it right
+  // if ceiling and floor are equal, then we got the answre.
+  if (ceiling === floor) {
+    endGame(`Then it's gotta be ${ceiling}. Thanks for playitng.`, count);
+  }
+
+  // check whether our attempt is correct
   try {
     response = await ask(`Is it ${attempt}? (Y/N) >_`);
   } catch (err) {
@@ -53,21 +87,21 @@ const play = async (ceiling, floor, attempt, count) => {
   // we got it!
   if (response === "Y") {
     // celebrate victor and then signed oout!
-    console.log("Hip! Hip! Hurray!! Thanks for playing!");
-    // ascii art courset of urban dictionary
-    console.log(`It only took me ${count} tries to guess it. ¯\\_(ツ)_/¯`);
-    console.log("bye");
-    process.exit(0); // optionally, extend an option to play again.
+    endGame("Hip! Hip! Hurray!! Thanks for playing!", count);
   }
   // nope - try again.
   else if (response === "N") {
-    // cheat detector: if there is only a difference of 1 b/t ceiling and floor - the gig is up!
-    if (ceiling - floor === 1) {
-      console.log(
-        `Your number has to be either ${ceiling} or ${floor}.` // or you are cheating!`
-      );
-      console.log("bye");
-      process.exit(0);
+    // if human says no, and the answer is only one of two, then immediately return the other
+
+    // if we have already checked the upper bound (b/c ceiling and floor are one appart),
+    // then it must be the lower point
+    if (checkedUpperBound) {
+      endGame(`Then it must be ${floor}. Thanks for playing.`, count);
+    }
+    // else if we haven't checked the ceiling yet and
+    // ceiling and floor are one apart, then it's gotta be the ceiling.
+    else if (ceiling - floor === 1) {
+      endGame(`Then it must be ${ceiling}. Thanks for playing.`, count);
     }
 
     //get some clues first
@@ -81,35 +115,45 @@ const play = async (ceiling, floor, attempt, count) => {
     if (direction === "H" || direction === "L") {
       // if human said go higher
       if (direction === "H") {
-        // make sure they're not saying 'higher' than the ceiling!
-        if (attempt >= ceiling) {
-          console.log(
-            `We've already established your number is lower than ${ceiling}! What games are you playing? Try again...`
+        // if our guess was already the ceiling, end game.
+        if (attempt === ceiling) {
+          endGame(
+            `Can't go any higher than ${ceiling}. Go get thee some coffe.`,
+            count
           );
-          updateAttempt = false;
         }
-        // if human's number is higher, our attempt becomes our floor
+        // if guess was just one away, then we know the solution
+        else if (ceiling - attempt === 1) {
+          endGame(`Then it must be ${ceiling}. Thanks for playing.`, count);
+        }
+        // if 'Higher' is a reasonable play, then attempt + 1 becomes our floor
         else {
-          [ceiling, floor] = [ceiling, attempt];
+          [ceiling, floor] = [ceiling, attempt + 1];
         }
       }
       // if human said go lower!
       else {
-        // make sure the human's not telling us to go lower than the bound!
-        if (attempt <= floor) {
-          console.log(
-            `We've already established that your number is higher than ${floor}. Have you had your coffee?`
+        // end game if user is telling us to go lower than the floor
+        if (attempt === floor) {
+          endGame(
+            `Can't go lower than ${floor}. Have you had your coffee?`,
+            count
           );
-          updateAttempt = false;
+        }
+        // if there's only one choice left, end game with it.
+        if (attempt - floor === 1) {
+          endGame(`Then it must be ${floor}. Thanks for playing.`, count);
         }
         // if human's number is lower, then our attempt becomes our ceiling
         else {
-          [ceiling, floor] = [attempt, floor];
+          [ceiling, floor] = [attempt - 1, floor];
         }
       }
 
-      // our next attempt is an alternating midpoint of the new floor & ceiling
-      if (updateAttempt) attempt = alternatingMidpoint(ceiling, floor);
+      // our next attempt is a mid-point new floor & ceiling
+      // the midpoint returns the ceiling of the average but also
+      // has logic to ensure the ceiling is also returned when appropriate.
+      if (updateAttempt) attempt = lowerMidpoint(ceiling, floor);
     } else {
       // user entered neither H nor L -- clarify input options :-)
       console.log("Please use H or L. Let's try again.");
@@ -145,4 +189,4 @@ const init = async () => {
 // setup & kick off the game
 init();
 
-module.exports = { init, play, alternatingMidpoint };
+module.exports = { init, play, lowerMidpoint, alternatingMidpoint };
