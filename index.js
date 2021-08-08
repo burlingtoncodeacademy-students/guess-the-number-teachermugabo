@@ -40,7 +40,8 @@ const exclamation = () =>
  * name: endGame
  * =============
  * Helper method to end the game.
- * @param {String} msg
+ * @param {String} msg - game-ending message
+ * @param {Number} count - tries to guess number
  */
 const endGame = (msg, count) => {
   console.log(msg);
