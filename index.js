@@ -4,9 +4,21 @@ const { allowUserToSetBounds } = require("./setbounds");
 
 // create randomly alternating middle to
 // handle the upper & lower bound edges cases
-// TODO revert to simple lowermid point & implement
-// TODO (cont.) logic to ensure the upper ceiling is addressed
 // That will also help us address the "cheating catcher which doesn't work right now"
+/**
+ * @deprecated
+ * alternativeMidpoint
+ * ===================
+ * Randomly returns the round up or rounded down
+ * average. This was at times more efficient and other
+ * time less efficient than our lowerMidpoint search.
+ * It also led to painful edge cases. So it is no longer
+ * being used.
+ *
+ * @param {*} top
+ * @param {*} bottom
+ * @returns - randomly alternating integer midpoint search.
+ */
 const alternatingMidpoint = (top, bottom) =>
   Math.random() > 0.5
     ? Math.ceil((top + bottom) / 2)
@@ -16,6 +28,23 @@ const alternatingMidpoint = (top, bottom) =>
 // upper limit is checked.
 let checkedUpperBound = false;
 
+/**
+ * lowerMidpoint
+ * =============
+ * Return average of ceiling and floor rounded down.
+ * since rounding down never returns the ceiling of
+ * a pair (2,3), (99,100) - in each of these two cases,
+ * 2 and 99 would always be returned respectively.
+ *
+ * To address that, this method uses global state in the
+ * variable checkedUpperBound to make sure it also
+ * returns the upper bound 3 and 100, respectively in the
+ * examples above).
+ *
+ * @param {Number} ceiling
+ * @param {Number} floor
+ * @returns lower integer midpoint (e.g. rounded down average)
+ */
 const lowerMidpoint = (ceiling, floor) => {
   console.log(`ceiling=${ceiling} and floor=${floor}`);
   // if we're down to the wire, and haven't checked up limit, do so.
@@ -168,6 +197,11 @@ const play = async (ceiling, floor, attempt, count) => {
   play(ceiling, floor, attempt, count + 1);
 };
 
+/**
+ * init
+ * ====
+ * Introduces and launches the game.
+ */
 const init = async () => {
   console.log(
     "Let's play a game where you (human) make up a number and I (computer) try to guess it."
