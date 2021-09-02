@@ -64,6 +64,9 @@ describe("Computer guessing number", () => {
     );
   });
 
+  // function includes waiting for user input
+  it("Can successfully prompt user with 'Higher or Lower?'");
+
   it.skip("Welcomes user and explains the game", async (done) => {
     let val = ""; // read print out on console - how?
     assert.strictEqual(
