@@ -11,7 +11,7 @@ const ask = require("./ask");
 const userWantsToSetOwnBounds = async () => {
   let answer = (
     await ask(
-      "Would you like to set your own lower & upper bound?" +
+      "Would you like to set your own lower & upper bounds?" +
         " 0 & 100 are the defaults. (Y/N) >_"
     )
   )
@@ -66,8 +66,8 @@ const getUserSetBounds = async (defaultCeiling, defaultFloor) => {
   let ceiling, floor;
 
   try {
-    ceiling = Number(await ask("Ceiling (#) >_"));
     floor = Number(await ask("Floor (#) >_"));
+    ceiling = Number(await ask("Ceiling (#) >_"));
 
     // sanitatize inputs -- make sure they're numbers & ceiling > floor
     if (isValidUpperLowerBounds(ceiling, floor)) {
