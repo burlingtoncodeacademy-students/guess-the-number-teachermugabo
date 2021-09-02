@@ -1,4 +1,5 @@
 const ask = require("./ask");
+const reverse_game = require("./reverse_game");
 const _ = require("underscore");
 const { allowUserToSetBounds } = require("./setbounds");
 
@@ -76,40 +77,18 @@ const endGame = (msg, count) => {
   console.log(msg);
   console.log();
 
-  console.log(`It only took me ${count} tries to guess it. ¯\\_(ツ)_/¯`);
+  if (count <= 1) console.log(`Too easy! Took only one try to figure it out!`);
+  else console.log(`Took me ${count} tries to resolve this. ¯\\_(ツ)_/¯`);
+
   console.log("bye");
   process.exit(0);
-};
-
-/**
- * name: gameOverCheatDetector
- *
- * If down to one or two options, ask user:
- * you're down to two: is it 21? if not, then is it 20?
- * if they say no, call cheat! and end the game.
- * If we're down to one -- say -- it's gotta be this. Is it?
- * If not, then call cheat! and end the game!
- * TODO Find the place where this cheat is - "X must be your number" and "bye!"
- * TODO Move code to this helper method (for the final checking loop)
- * TODO Return a boolean to call game over.
- */
-const gameOverCheatDetector = (scenario, otherData) => {
-  if (scenario === "down to two") {
-    // give user option b/t those two -- if they saw no, call cheat & end
-  } else if (scenario === "down to one") {
-    // is this even necessary? This may already be handled
-    // if not, handle it and say, we're done here!
-  }
-
-  // either way, it's game over!
-  endGame(msg, count);
 };
 
 /**
  * Name: play
  * ==========
  * This function is the recursive main game loop.
- * Uses the params to narrow onto the secret number.
+ * Uses the params to converge onto the secret number.
  *
  * @param {Number} ceiling - upper bound
  * @param {Number} floor - lower bound
@@ -121,16 +100,16 @@ const play = async (ceiling, floor, attempt, count) => {
 
   // check whether our attempt is correct
   try {
-    response = await ask(`Is it ${attempt}? (Y/N) >_`);
+    response = (await ask(`Is it ${attempt}? (Y/N/q) >_`)).toUpperCase();
   } catch (err) {
     console.log(err.message);
   }
 
   // allow player to escape
-  if (response === "leave") process.exit(0);
-
-  // let's be friendly -- ensure response upper case for the user
-  response = response.toUpperCase();
+  if (response && response[0] === "Q") {
+    console.log("Sorry to see you leave...till next time!");
+    process.exit(0);
+  }
 
   // checking -- did we guess it right?
   // we got it!
@@ -140,82 +119,56 @@ const play = async (ceiling, floor, attempt, count) => {
   }
   // nope - try again.
   else if (response === "N") {
-    // insert cheat detections
-
-    // cheat detection #1:
     // if human says no, and the ceiling already equals the floor,
-    // if ceiling and floor are equal, then we got the answer.
-    if (ceiling === floor) {
-      endGame(`Then it's gotta be ${ceiling}. Thanks for playing.`, count);
-    }
+    // if ceiling and floor are equal, then we know the answer but
+    // let's let the user try and tell us which direction to go...
+    if (ceiling === floor) console.log("🤔");
 
-    // cheat detection #2:
-    // if human says no, and the answer is only one of two, then immediately return the other
-    // if we have already checked the upper bound (b/c ceiling and floor are one apart),
-    // then it must be the lower point
-    if (checkedUpperBound) {
-      endGame(`Then it must be ${floor}. Thanks for playing.`, count);
-    }
-    // else if we haven't checked the ceiling yet and
-    // ceiling and floor are one apart, then it's gotta be the ceiling.
-    else if (ceiling - floor === 1) {
-      endGame(`Then it must be ${ceiling}. Thanks for playing.`, count);
-    }
+    // prompt the user with which way to go
+    // TODO ensure that H or L is returned
+    let direction = await promptUserHigherOrLower(
+      "(H)igher or (L)ower? >_",
+      "Please user either H or L. Here we go again."
+    );
 
-    //get some clues first
-    let direction = (
-      await ask(`${exclamation()} (H)igher or (L)ower? >_`)
-    ).toUpperCase();
-
-    // based on validation checks, we may choose to not update our attempt
-    let updateAttempt = true;
-
-    if (direction === "H" || direction === "L") {
-      // if human said go higher
-      if (direction === "H") {
-        // if our guess was already the ceiling, end game.
-        if (attempt === ceiling) {
-          endGame(
-            `Can't go any higher than ${ceiling}. Go get thee some coffe.`,
-            count
-          );
-        }
-        // if guess was just one away, then we know the solution
-        else if (ceiling - attempt === 1) {
-          endGame(`Then it must be ${ceiling}. Thanks for playing.`, count);
-        }
-        // if 'Higher' is a reasonable play, then attempt + 1 becomes our floor
-        else {
-          [ceiling, floor] = [ceiling, attempt + 1];
-        }
+    // if human said go higher
+    if (direction === "H") {
+      // cheat catch -- if our guess was already the ceiling, end game.
+      if (attempt === ceiling) {
+        endGame(
+          `You've already said your number was lower than ${ceiling}. ` +
+            `Go get thee some coffee.`,
+          count
+        );
       }
-      // if human said go lower!
+
+      // if 'Higher' is a reasonable play, then attempt + 1 becomes our floor
       else {
-        // end game if user is telling us to go lower than the floor
-        if (attempt === floor) {
-          endGame(
-            `Can't go lower than ${floor}. Have you had your coffee?`,
-            count
-          );
-        }
-        // if there's only one choice left, end game with it.
-        if (attempt - floor === 1) {
-          endGame(`Then it must be ${floor}. Thanks for playing.`, count);
-        }
-        // if human's number is lower, then our attempt becomes our ceiling
-        else {
-          [ceiling, floor] = [attempt - 1, floor];
-        }
+        [ceiling, floor] = [ceiling, attempt + 1];
+      }
+    }
+    // if human said go lower!
+    else if (direction === "L") {
+      // cheat catch #2 -- user is telling us to go lower than the floor
+      if (attempt === floor) {
+        console.log("🤔");
+        endGame(
+          `You've already set the floor to be ${floor}. ` +
+            `Have you had your coffee?`,
+          count
+        );
       }
 
-      // our next attempt is a mid-point new floor & ceiling
-      // the midpoint returns the ceiling of the average but also
-      // has logic to ensure the ceiling is also returned when appropriate.
-      if (updateAttempt) attempt = lowerMidpoint(ceiling, floor);
-    } else {
-      // user entered neither H nor L -- clarify input options :-)
-      console.log("Please use H or L. Let's try again.");
+      // if human's number is lower, then our attempt becomes our ceiling
+      else {
+        [ceiling, floor] = [attempt - 1, floor];
+      }
     }
+
+    // our next attempt is a mid-point new floor & ceiling
+    // the midpoint returns the ceiling of the average but also
+    // has logic to ensure the ceiling is also returned when appropriate.
+    attempt = lowerMidpoint(ceiling, floor);
   } else {
     // user entered neither Y nor N -- clarify input options :-)
     console.log("Please use either Y or N. Here we go again.");
@@ -226,11 +179,28 @@ const play = async (ceiling, floor, attempt, count) => {
 };
 
 /**
+ * higherOr
+ * @returns {String} direction - 'H' or 'L'
+ */
+const promptUserHigherOrLower = async (prompt, instructions) => {
+  let direction = (await ask(`${exclamation()} ${prompt}`)).toUpperCase();
+
+  while (direction != "H" && direction != "L") {
+    console.log(instructions);
+    direction = (await ask(prompt)).toUpperCase();
+  }
+
+  return direction;
+};
+
+/**
  * init
  * ====
  * Introduces and launches the game.
  */
 const init = async () => {
+  console.log();
+
   console.log(
     "Let's play a game where you (human) choose up " +
       "a number and I (computer) try to guess it."
@@ -248,4 +218,10 @@ const init = async () => {
 // setup & kick off the game
 init();
 
-module.exports = { init, play, lowerMidpoint, alternatingMidpoint };
+module.exports = {
+  init,
+  play,
+  lowerMidpoint,
+  promptUserHigherOrLower,
+  alternatingMidpoint,
+};
