@@ -57,5 +57,7 @@ async function start(secret) {
   start(secret);
 }
 
-//setup & kick off the game
-init();
+// setup & kick off the game
+// init(); -- export to be run from index.js
+
+module.exports = init;
