@@ -6,8 +6,8 @@ const { allowUserToSetBounds } = require("./setbounds");
 // handle the upper & lower bound edges cases
 // That will also help us address the "cheating catcher which doesn't work right now"
 /**
- * @deprecated
- * alternativeMidpoint
+ * @deprecated - no longer being used / using lowerMidpoint instead.
+ * alternatingMidpoint
  * ===================
  * Randomly returns the round up or rounded down
  * average. This was at times more efficient and other
@@ -33,21 +33,21 @@ let checkedUpperBound = false;
  * =============
  * Return average of ceiling and floor rounded down.
  * since rounding down never returns the ceiling of
- * a pair (2,3), (99,100) - in each of these two cases,
- * 2 and 99 would always be returned respectively.
- *
- * To address that, this method uses global state in the
- * variable checkedUpperBound to make sure it also
- * returns the upper bound 3 and 100, respectively in the
- * examples above).
+ * a pair (2,3), (99,100) -- in each of these two cases,
+ * 2 and 99 would always be returned respectively -- this
+ * method uses global state in the variable checkedUpperBound
+ * to make sure it also returns the upper bound 3 and 100,
+ * respectively in the
+ * examples above.
  *
  * @param {Number} ceiling
  * @param {Number} floor
  * @returns lower integer midpoint (e.g. rounded down average)
  */
 const lowerMidpoint = (ceiling, floor) => {
-  console.log(`ceiling=${ceiling} and floor=${floor}`);
-  // if we're down to the wire, and haven't checked up limit, do so.
+  // console.log(`ceiling=${ceiling} and floor=${floor}`);
+
+  // if we're down to the wire, and haven't checked upper limit, do so.
   if (ceiling - floor <= 1 && checkedUpperBound === false) {
     checkedUpperBound = true;
     return ceiling;
@@ -82,6 +82,30 @@ const endGame = (msg, count) => {
 };
 
 /**
+ * name: gameOverCheatDetector
+ *
+ * If down to one or two options, ask user:
+ * you're down to two: is it 21? if not, then is it 20?
+ * if they say no, call cheat! and end the game.
+ * If we're down to one -- say -- it's gotta be this. Is it?
+ * If not, then call cheat! and end the game!
+ * TODO Find the place where this cheat is - "X must be your number" and "bye!"
+ * TODO Move code to this helper method (for the final checking loop)
+ * TODO Return a boolean to call game over.
+ */
+const gameOverCheatDetector = (scenario, otherData) => {
+  if (scenario === "down to two") {
+    // give user option b/t those two -- if they saw no, call cheat & end
+  } else if (scenario === "down to one") {
+    // is this even necessary? This may already be handled
+    // if not, handle it and say, we're done here!
+  }
+
+  // either way, it's game over!
+  endGame(msg, count);
+};
+
+/**
  * Name: play
  * ==========
  * This function is the recursive main game loop.
@@ -94,11 +118,6 @@ const endGame = (msg, count) => {
  */
 const play = async (ceiling, floor, attempt, count) => {
   let response;
-
-  // if ceiling and floor are equal, then we got the answre.
-  if (ceiling === floor) {
-    endGame(`Then it's gotta be ${ceiling}. Thanks for playitng.`, count);
-  }
 
   // check whether our attempt is correct
   try {
@@ -121,9 +140,18 @@ const play = async (ceiling, floor, attempt, count) => {
   }
   // nope - try again.
   else if (response === "N") {
-    // if human says no, and the answer is only one of two, then immediately return the other
+    // insert cheat detections
 
-    // if we have already checked the upper bound (b/c ceiling and floor are one appart),
+    // cheat detection #1:
+    // if human says no, and the ceiling already equals the floor,
+    // if ceiling and floor are equal, then we got the answer.
+    if (ceiling === floor) {
+      endGame(`Then it's gotta be ${ceiling}. Thanks for playing.`, count);
+    }
+
+    // cheat detection #2:
+    // if human says no, and the answer is only one of two, then immediately return the other
+    // if we have already checked the upper bound (b/c ceiling and floor are one apart),
     // then it must be the lower point
     if (checkedUpperBound) {
       endGame(`Then it must be ${floor}. Thanks for playing.`, count);
@@ -204,12 +232,8 @@ const play = async (ceiling, floor, attempt, count) => {
  */
 const init = async () => {
   console.log(
-    "Let's play a game where you (human) make up a number and I (computer) try to guess it."
-  );
-
-  await ask(
-    "Please think of a number between 1 and 100 (inclusive).\n" +
-      "I will try to guess it. Ready? Press [Enter] to start."
+    "Let's play a game where you (human) choose up " +
+      "a number and I (computer) try to guess it."
   );
 
   let [ceiling, floor] = await allowUserToSetBounds();
