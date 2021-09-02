@@ -21,7 +21,11 @@ const userWantsToSetOwnBounds = async () => {
   // ask until we get a valid response
   while (answer != "Y" && answer != "N") {
     console.log("Please use Y or N. Let's try again.");
-    answer = (await ask("Wanna make things interesting with new bounds? (Y/N)"))
+    answer = (
+      await ask(
+        "Wanna make things interesting by " + "setting your own bounds? (Y/N)"
+      )
+    )
       .trim()
       .toUpperCase();
   }
