@@ -11,8 +11,8 @@ const ask = require("./ask");
 const userWantsToSetOwnBounds = async () => {
   let answer = (
     await ask(
-      "Btw, do you Wanna set your own lower & upper bound?" +
-        " 0 & 100 are just the defaults. (Y/N) >_"
+      "Would you like to set your own lower & upper bound?" +
+        " 0 & 100 are the defaults. (Y/N) >_"
     )
   )
     .trim()
