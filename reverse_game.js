@@ -3,7 +3,9 @@ const ask = require("./ask");
 
 // Prompt user to start the game
 const init = async () => {
-  //Welcome user to the number guessing game
+  console.log(); // empty line for layout
+
+  // Welcome user to the number guessing game
   console.log(
     "Welcome to our guessing game. In this experience, " +
       "you'll have to read my mind.\n" +
