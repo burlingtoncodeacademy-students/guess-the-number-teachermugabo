@@ -17,8 +17,13 @@ const init = async () => {
   let secret = _.random(0, 100);
 
   await ask("I am ready. Are you? [Enter] to start");
+  console.log(); // empty line for layout
+
   start(secret);
 };
+
+// global variable used by recurcive game loop to end game
+let gameOver = false;
 
 /**
  * Name: start()
@@ -27,8 +32,19 @@ const init = async () => {
  * @param {String} secret
  */
 async function start(secret) {
-  //Asks user for first guess
-  let input = (await ask("Your guess, please >_")).trim();
+  // Asks user for first guess
+  let input = (await ask("Your guess, please (q to quit) >_")).trim();
+
+  if (input == "q") {
+    console.log("Thanks for playing. 'till next time!");
+
+    // gameOver = true;
+    process.exit(0);
+  }
+
+  // break out of recursive depth if game is over
+  if (gameOver) return;
+
   let guess = Number(input);
   //Check the guess is a valid input
   // -- is it an integer
