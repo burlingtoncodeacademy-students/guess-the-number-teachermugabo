@@ -2,6 +2,10 @@ const ask = require("./ask");
 const reverse_game = require("./reverse_game");
 const _ = require("underscore");
 const { allowUserToSetBounds } = require("./setbounds");
+const { indexOf } = require("underscore");
+
+// global variable used by recurcive game loop to end game
+let gameOver = false;
 
 // create randomly alternating middle to
 // handle the upper & lower bound edges cases
@@ -80,7 +84,7 @@ const endGame = (msg, count) => {
   if (count <= 1) console.log(`Too easy! Took only one try to figure it out!`);
   else console.log(`Took me ${count} tries to resolve this. ¯\\_(ツ)_/¯`);
 
-  console.log("bye");
+  // gameOver = true;
   process.exit(0);
 };
 
@@ -174,8 +178,12 @@ const play = async (ceiling, floor, attempt, count) => {
     console.log("Please use either Y or N. Here we go again.");
   }
 
-  // try again with new bounderies and our next guess
-  play(ceiling, floor, attempt, count + 1);
+  // if game over, simply return
+  if (gameOver) return;
+  else {
+    // continue with new bounderies and our next guess
+    await play(ceiling, floor, attempt, count + 1);
+  }
 };
 
 /**
@@ -194,15 +202,17 @@ const promptUserHigherOrLower = async (prompt, instructions) => {
 };
 
 /**
- * init
- * ====
- * Introduces and launches the game.
+ * Name: game
+ *
+ * Encapsulates the starting of the default game,
+ * from the reverse_game. The default game is where
+ * the Human chooses a number, and the computer
+ * tries to guess it.
  */
-const init = async () => {
-  console.log();
-
+const game = async () => {
+  console.log(); // empty line for layout
   console.log(
-    "Let's play a game where you (human) choose up " +
+    "Let's play a game where you (human) choose " +
       "a number and I (computer) try to guess it."
   );
 
@@ -212,7 +222,54 @@ const init = async () => {
   let seed = _.random(floor, ceiling);
 
   // start the game!
-  play(ceiling, floor, seed, 1);
+  await play(ceiling, floor, seed, 1);
+};
+
+/**
+ * init
+ * ====
+ * Introduces and launches the game.
+ */
+const init = async () => {
+  console.log(`There are two kinds of games in the world:
+  1. Where you choose a number and I (the computer) guess it
+  2. Where I choose a number and you (human) try to guess.
+
+  Which will it be? (q to quit)`);
+
+  // collect user input (& clean it up)
+  let choice = (await ask(` >_`)).trim().toLowerCase();
+
+  while (choice != "q") {
+    // validate user choice
+    let options = ["1", "2", "q"];
+    while (!choice || options.indexOf(choice) === -1) {
+      console.log("Please enter either 1,2 or q. Try again.");
+      choice = (await ask(` >_`)).toLowerCase();
+    }
+
+    // menu switch
+    if (choice === "1") {
+      // start the default game - you choose a number
+      await game();
+    } else if (choice === "2") {
+      // start the reverse - computer chooses a number
+      await reverse_game();
+    } else {
+      console.log("Sorry to see you go. 'till next time! ");
+      process.exit(0);
+    }
+
+    // empty line for layout
+    console.log();
+
+    // prompt user to play again
+    choice = (
+      await ask(`Uno mas? 1 - you choose #, 2 - I choose # (q to quit) >_`)
+    )
+      .trim()
+      .toLowerCase();
+  }
 };
 
 // setup & kick off the game
