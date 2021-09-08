@@ -14,7 +14,10 @@ const init = async () => {
   );
 
   // overlord chooses number
-  let secret = _.random(0, 100);
+  let secret = 55
+
+  // set gameOver variable to false 
+  gameOver = false
 
   await ask("I am ready. Are you? [Enter] to start");
   console.log(); // empty line for layout
@@ -22,8 +25,8 @@ const init = async () => {
   await start(secret, 0);
 };
 
-// global variable used by recurcive game loop to end game
-let gameOver = false;
+// init gameOver variable for global access
+let gameOver;
 
 /**
  * Name: start()
