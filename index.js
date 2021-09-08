@@ -225,22 +225,28 @@ const game = async () => {
   await play(ceiling, floor, seed, 1);
 };
 
+const GAME_MENU = `There are two kinds of games in the world:
+  1. Where you choose a number and I (the computer) guess it
+  2. Where I choose a number and you (human) try to guess.
+
+  Which will it be? (q to quit)`;
+
 /**
  * init
  * ====
  * Introduces and launches the game.
  */
 const init = async () => {
-  console.log(`There are two kinds of games in the world:
-  1. Where you choose a number and I (the computer) guess it
-  2. Where I choose a number and you (human) try to guess.
-
-  Which will it be? (q to quit)`);
+  console.log(GAME_MENU);
 
   // collect user input (& clean it up)
-  let choice = (await ask(` >_`)).trim().toLowerCase();
+  let choice = (await ask(`>_`)).trim().toLowerCase();
 
   while (choice != "q") {
+    debugger;
+    console.log();
+    console.log("inside whole game loop - and choice =", choice);
+
     // validate user choice
     let options = ["1", "2", "q"];
     while (!choice || options.indexOf(choice) === -1) {
@@ -256,6 +262,7 @@ const init = async () => {
       // start the reverse - computer chooses a number
       await reverse_game();
     } else {
+      // choice = 'q'
       console.log("Sorry to see you go. 'till next time! ");
       process.exit(0);
     }
@@ -264,11 +271,9 @@ const init = async () => {
     console.log();
 
     // prompt user to play again
-    choice = (
-      await ask(`Uno mas? 1 - you choose #, 2 - I choose # (q to quit) >_`)
-    )
-      .trim()
-      .toLowerCase();
+    console.log("Would you like to play again? Here was the menu:");
+    console.log(GAME_MENU);
+    choice = (await ask(`>_`)).trim().toLowerCase();
   }
 };
 
