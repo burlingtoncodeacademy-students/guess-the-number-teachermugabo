@@ -19,7 +19,7 @@ const init = async () => {
   await ask("I am ready. Are you? [Enter] to start");
   console.log(); // empty line for layout
 
-  start(secret);
+  await start(secret);
 };
 
 // global variable used by recurcive game loop to end game
@@ -72,7 +72,7 @@ async function start(secret) {
     }
   }
   // continue game until it resolves
-  start(secret);
+  await start(secret);
 }
 
 // setup & kick off the game
