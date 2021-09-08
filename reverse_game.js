@@ -19,7 +19,7 @@ const init = async () => {
   await ask("I am ready. Are you? [Enter] to start");
   console.log(); // empty line for layout
 
-  await start(secret);
+  await start(secret, 0);
 };
 
 // global variable used by recurcive game loop to end game
@@ -29,21 +29,22 @@ let gameOver = false;
  * Name: start()
  * =============
  * Recursive game loop
- * @param {String} secret
+ * @param {String} secret - the number to guess
+ * @param {Number} count - number of tries to guess the secret
  */
-async function start(secret) {
+async function start(secret, count) {
+  // first -- is our game over? if so return.
+  if (gameOver) return;
+
   // Asks user for first guess
   let input = (await ask("Your guess, please (q to quit) >_")).trim();
 
   if (input == "q") {
     console.log("Thanks for playing. 'till next time!");
 
-    // gameOver = true;
+    gameOver = true;
     process.exit(0);
   }
-
-  // break out of recursive depth if game is over
-  if (gameOver) return;
 
   let guess = Number(input);
   //Check the guess is a valid input
@@ -58,9 +59,11 @@ async function start(secret) {
   else {
     //If same, say congratulations!
     if (guess === secret) {
-      console.log("Congratulations!");
-      console.log("bye");
-      process.exit(0);
+      console.log(`Congratulations! Took you ${count} tries.`);
+      // console.log("bye");
+      // process.exit(0);
+      gameOver = true;
+      return;
     }
     //If guess is higher than chosen number, tell user to guess lower
     else if (guess > secret) {
@@ -72,7 +75,7 @@ async function start(secret) {
     }
   }
   // continue game until it resolves
-  await start(secret);
+  await start(secret, count + 1);
 }
 
 // setup & kick off the game
