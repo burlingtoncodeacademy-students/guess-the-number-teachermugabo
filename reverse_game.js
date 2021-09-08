@@ -1,5 +1,8 @@
 const _ = require("underscore");
-const ask = require("./ask");
+const { ask } = require("./utils/general");
+
+// declare gameOver variable for global access
+let gameOver;
 
 // Prompt user to start the game
 const init = async () => {
@@ -14,19 +17,16 @@ const init = async () => {
   );
 
   // overlord chooses number
-  let secret = 55
+  let secret = _.random(0, 100);
 
-  // set gameOver variable to false 
-  gameOver = false
+  // init game state before new game
+  gameOver = false;
 
-  await ask("I am ready. Are you? [Enter] to start");
+  await ask("I am ready. Are you? Press [Enter] to start! ");
   console.log(); // empty line for layout
 
-  await start(secret, 0);
+  await start(secret, 1);
 };
-
-// init gameOver variable for global access
-let gameOver;
 
 /**
  * Name: start()
@@ -63,8 +63,9 @@ async function start(secret, count) {
     //If same, say congratulations!
     if (guess === secret) {
       console.log(`Congratulations! Took you ${count} tries.`);
-      // console.log("bye");
-      // process.exit(0);
+
+      console.log();
+      await ask("Enter to Continue...");
       gameOver = true;
       return;
     }

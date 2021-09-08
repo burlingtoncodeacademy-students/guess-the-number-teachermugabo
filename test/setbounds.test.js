@@ -1,5 +1,5 @@
 const { assert } = require("chai");
-const { isValidUpperLowerBounds } = require("../setbounds.js");
+const { isValidUpperLowerBounds } = require("../utils/setbounds");
 
 describe("User setting upper & lower bounds", () => {
   // kill process after this suite
@@ -11,7 +11,7 @@ describe("User setting upper & lower bounds", () => {
     "aks user for their upper & lower bounds, if they said yes to wanting to set their own"
   );
 
-  it("checks that the user entered bounds the make sense", () => {
+  it("checks that the user entered bounds that make sense", () => {
     assert.strictEqual(
       isValidUpperLowerBounds(100, 0),
       true,

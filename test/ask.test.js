@@ -1,6 +1,6 @@
 // file to test
 const { assert } = require("chai");
-const ask = require("../ask");
+const { ask } = require("../utils/general");
 
 // https://glebbahmutov.com/blog/unit-testing-cli-programs/
 describe("ask", () => {

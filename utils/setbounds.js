@@ -1,4 +1,4 @@
-const ask = require("./ask");
+const { ask } = require("./general");
 
 /**
  * Name: userWantsToSetOwnBounds
@@ -11,8 +11,9 @@ const ask = require("./ask");
 const userWantsToSetOwnBounds = async () => {
   let answer = (
     await ask(
-      "Would you like to set your own lower & upper bounds?" +
-        " 0 & 100 are the defaults. (Y/N) >_"
+      "Would you like to set your own lower & upper bounds?\n" +
+        "0 & 100 are the defaults.\n" +
+        "(Y/N) >_"
     )
   )
     .trim()
@@ -22,9 +23,7 @@ const userWantsToSetOwnBounds = async () => {
   while (answer != "Y" && answer != "N") {
     console.log("Please use Y or N. Let's try again.");
     answer = (
-      await ask(
-        "Wanna make things interesting by " + "setting your own bounds? (Y/N)"
-      )
+      await ask("Spice things up by setting your own bounds?\n" + "(Y/N) >_")
     )
       .trim()
       .toUpperCase();
@@ -101,8 +100,6 @@ const allowUserToSetBounds = async () => {
   // set defaults
   let ceiling = 100;
   let floor = 0;
-
-  console.log(); // insert new line for layout
 
   // ask user if they want to set bounderies
   if (await userWantsToSetOwnBounds()) {
