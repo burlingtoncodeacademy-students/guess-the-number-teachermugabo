@@ -29,7 +29,8 @@ const endGame = (msg, count) => {
   else console.log(`Took me ${count} tries to resolve this. ¯\\_(ツ)_/¯`);
 
   // close out game
-  process.exit(0);
+  gameOver = true;
+  // process.exit(0);
 };
 
 /**
@@ -72,6 +73,9 @@ const init = async () => {
  * @param {Number} count - tracks number of tries
  */
 const play = async (ceiling, floor, attempt, count) => {
+  // recursive end case - utilizing global state
+  if (gameOver) return;
+
   let response;
 
   // check whether our attempt is correct
