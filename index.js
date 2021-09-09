@@ -50,6 +50,10 @@ const start = async () => {
     console.log(GAME_MENU);
     choice = (await ask(`>_`)).trim().toLowerCase();
   }
+
+  // end game
+  console.log("Thanks for playing!");
+  process.exit(0);
 };
 
 // let the games begin
